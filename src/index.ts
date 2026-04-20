@@ -13,8 +13,17 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+// OIDC Endpoints
 
-
+app.get('/.well-known/openid-configuration', (req, res)=>{
+    const ISSUER = `http://localhost:${PORT}`
+    return res.json({
+        issuer: ISSUER,
+        authorization_endpoint: `${ISSUER}/o/auth`,
+        userinfo_endpoint: `${ISSUER}/o/userinfo`,
+        jwks_uri: `${ISSUER}/.well-known/jwks.json`
+    })
+});
 
 app.listen(PORT, () => {
     console.log(`Auth server is running on port ${PORT}`);
