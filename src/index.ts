@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import jose from "node-jose"
+import { PRIVATE_KEY, PUBLIC_KEY } from './utils/cert.js';
 
 const app = express();
 
@@ -22,6 +24,14 @@ app.get('/.well-known/openid-configuration', (req, res)=>{
         authorization_endpoint: `${ISSUER}/o/auth`,
         userinfo_endpoint: `${ISSUER}/o/userinfo`,
         jwks_uri: `${ISSUER}/.well-known/jwks.json`
+    })
+});
+
+app.get('/.well-known/jwks.json', async (req, res) => {
+    const key = await jose.JWK.asKey(PUBLIC_KEY, 'pem')
+    
+    return res.json({
+        keys: [key.toJSON()]
     })
 });
 
