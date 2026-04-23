@@ -271,7 +271,7 @@
     </form>
 
     <div class="footer">
-      Don't have an account? <a href="/signup.html">Sign up</a>
+      Don't have an account? <a href="/register.html">Sign up</a>
     </div>
   </div>
 
@@ -314,16 +314,16 @@
       setLoading(true);
 
       try {
-        const res = await fetch('/o/authenticate/sign-in', {
+        const res = await fetch('/o/authenticate/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email,
             password,
-            client_id: params.get('client_id'),
-            redirect_uri: params.get('redirect_uri'),
-            state: params.get('state'),
-            nonce: params.get('nonce'),
+            // client_id: params.get('client_id'),
+            // redirect_uri: params.get('redirect_uri'),
+            // state: params.get('state'),
+            // nonce: params.get('nonce'),
           }),
         });
 

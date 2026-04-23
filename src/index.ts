@@ -5,9 +5,10 @@ import { PRIVATE_KEY, PUBLIC_KEY } from './utils/cert.js';
 import path from 'node:path';
 import { db } from './db/index.js';
 import { usersTable } from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { JWTClaims } from './utils/user-token.js';
 import Jwt from 'jsonwebtoken';
+import crypto from "node:crypto"
 
 const app = express();
 
@@ -48,7 +49,38 @@ app.get('/o/authenticate', async (req, res) => {
     return res.sendFile(path.resolve('public', 'authenticate.html'))
 });
 
-app.get('/o/authenticate/login', async (req, res) => {
+app.post('/o/authenticate/register', async (req, res) => {
+    
+    const {firstName, lastName, profileImageURL, email, password} = req.body
+
+    if (!firstName || !email || !password) {
+        return res.status(401).json({
+            message: "Firstname, email and password are required"
+        })
+    }
+
+    const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email))
+
+    if (existingUser?.email) {
+        return res.json(401).json({
+            message: "User with this email alerady exist"
+        })
+    }
+
+    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex")
+
+    const user = await db.insert(usersTable).values({
+        firstName, lastName, email, password: hashedPassword, profileImageURL
+    }).returning({id: usersTable.id})
+
+    res.status(201).json({
+        message: "User created!",
+        data: user
+    })
+    
+});
+
+app.post('/o/authenticate/login', async (req, res) => {
     const {email, password} = req.body
 
     if (!email || !password) {
@@ -57,8 +89,12 @@ app.get('/o/authenticate/login', async (req, res) => {
         })
     }
 
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email))
+    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex")
 
+    const [user] = await db.select().from(usersTable).where(and(
+                                                                eq(usersTable.email, email),
+                                                                eq(usersTable.password, hashedPassword)
+                                                            ))
     
     if (!user?.email || !user?.password) {
         return res.status(401).json({

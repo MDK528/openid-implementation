@@ -357,7 +357,7 @@
       setLoading(true);
 
       try {
-        const res = await fetch('/o/authenticate/sign-up', {
+        const res = await fetch('/o/authenticate/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -371,7 +371,8 @@
             nonce: params.get('nonce'),
           }),
         });
-
+        console.log(res);
+        
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
