@@ -123,6 +123,46 @@ app.post('/o/authenticate/login', async (req, res) => {
 
 });
 
+app.get('/o/userinfo', async (req, res) => {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader?.startsWith("Bearer ")) {
+        return res.status(401).json({
+            message: "Missing or Invalid Authorization header"
+        })
+    }
+
+    const token = authHeader.slice(7)
+    console.log(token);
+
+    let claims: JWTClaims;
+
+    try {
+        claims = Jwt.verify(token, PUBLIC_KEY, {algorithms: ["RS256"]}) as JWTClaims
+    } catch {
+        res.status(401).json({ message: "Invalid or expired token." });
+        return;
+    }
+    
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, claims.sub)).limit(1)
+
+    if (!user) {
+        return res.status(404).json({ 
+            message: "User not found." 
+        });
+    }
+
+    res.json({
+        sub: user.id,
+        email: user.email,
+        email_verified: user.emailVerified,
+        given_name: user.firstName,
+        family_name: user.lastName,
+        name: [user.firstName, user.lastName].filter(Boolean).join(" "),
+        picture: user.profileImageURL
+    })
+});
+
 app.listen(PORT, () => {
     console.log(`Auth server is running on port ${PORT}`);
 });
