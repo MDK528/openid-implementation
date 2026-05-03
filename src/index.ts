@@ -50,7 +50,6 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-
 app.get('/.well-known/openid-configuration', (req, res) => {
     const ISSUER = `http://localhost:${PORT}`
     return res.json({
@@ -324,5 +323,5 @@ app.post('/o/authenticate/tokeninfo', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Auth server is running on port ${PORT}`);
+    console.log(`Auth server is running on http://localhost:${PORT}`);
 });

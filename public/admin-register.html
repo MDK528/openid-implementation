@@ -25,7 +25,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 16px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-            padding: 2rem;
+            padding: 2.5rem;
         }
 
         h1 {
@@ -46,13 +46,20 @@
         }
 
         input {
-            width: 80%;
+            width: 100%;
             padding: 0.85rem 1rem;
             font-size: 0.95rem;
             border: 1px solid #cbd5e1;
             border-radius: 12px;
             margin-bottom: 1rem;
             background: #f8fafc;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0f172a;
+            background: #ffffff;
         }
 
         button {
@@ -65,6 +72,11 @@
             font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1e293b;
         }
 
         .message {
@@ -94,15 +106,16 @@
     <div class="card">
         <h1>Admin Application Registration</h1>
         <p>Enter the application details to create a new client.</p>
-        <form id="adminForm">
+        <form id="adminForm" style="padding: 0 40px 0 0;">
             <label for="applicationName">Application Name</label>
             <input id="applicationName" name="applicationName" type="text" placeholder="My App" required />
 
             <label for="redirectUri">Redirect URI</label>
             <input id="redirectUri" name="redirectUri" type="url" placeholder="https://app.example.com/callback"
                 required />
-
-            <button type="submit">Register Application</button>
+            <div style="width: 100%; display: flex; justify-content: center; padding: 20px; ">
+                <button type="submit">Register Application</button>
+            </div>
         </form>
         <div id="successMsg" class="message success"></div>
         <div id="errorMsg" class="message error"></div>
@@ -114,7 +127,7 @@
 
         function showMessage(element, text)
         {
-            element.textContent = text;
+            element.innerHTML = text;
             element.style.display = 'block';
         }
 
@@ -154,8 +167,8 @@
                     return;
                 }
 
-                showMessage(successMsg, `Application registered successfully. Client ID: ${data.data.clientId}
-                Client Secret: ${data.data.clientSecret}`);
+                showMessage(successMsg, `<pre>Client ID: ${data.data.clientId}</pre>
+                    <pre >Client Secret: ${data.data.clientSecret}</pre>`);
                 form.reset();
             } catch (err)
             {
