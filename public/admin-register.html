@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Application</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 430px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin: 0 0 1.5rem;
+            color: #64748b;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        input {
+            width: 80%;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.95rem 1rem;
+            border: none;
+            border-radius: 12px;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .message {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .message.success {
+            display: none;
+            background: #ecfdf5;
+            color: #166534;
+            border: 1px solid #d1fae5;
+        }
+
+        .message.error {
+            display: none;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Admin Application Registration</h1>
+        <p>Enter the application details to create a new client.</p>
+        <form id="adminForm">
+            <label for="applicationName">Application Name</label>
+            <input id="applicationName" name="applicationName" type="text" placeholder="My App" required />
+
+            <label for="redirectUri">Redirect URI</label>
+            <input id="redirectUri" name="redirectUri" type="url" placeholder="https://app.example.com/callback"
+                required />
+
+            <button type="submit">Register Application</button>
+        </form>
+        <div id="successMsg" class="message success"></div>
+        <div id="errorMsg" class="message error"></div>
+    </div>
+    <script>
+        const form = document.getElementById('adminForm');
+        const successMsg = document.getElementById('successMsg');
+        const errorMsg = document.getElementById('errorMsg');
+
+        function showMessage(element, text)
+        {
+            element.textContent = text;
+            element.style.display = 'block';
+        }
+
+        function hideMessages()
+        {
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+        }
+
+        form.addEventListener('submit', async (event) =>
+        {
+            event.preventDefault();
+            hideMessages();
+
+            const applicationName = document.getElementById('applicationName').value.trim();
+            const redirectUri = document.getElementById('redirectUri').value.trim();
+
+            if (!applicationName || !redirectUri)
+            {
+                showMessage(errorMsg, 'Application name and redirect URI are required.');
+                return;
+            }
+
+            try
+            {
+                const response = await fetch('/o/admin/applications/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ applicationName, redirectUri }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok)
+                {
+                    showMessage(errorMsg, data.message || 'Unable to register application.');
+                    return;
+                }
+
+                showMessage(successMsg, `Application registered successfully. Client ID: ${data.data.clientId}
+                Client Secret: ${data.data.clientSecret}`);
+                form.reset();
+            } catch (err)
+            {
+                showMessage(errorMsg, 'Unable to register application. Please try again.');
+            }
+        });
+    </script>
+</body>
+
+</html>
